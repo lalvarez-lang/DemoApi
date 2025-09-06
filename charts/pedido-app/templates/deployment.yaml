@@ -26,4 +26,4 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: db-secret
-                  key: password
+                  key: Admin123*

@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: backend-config
 data:
-  DB_URL: "jdbc:postgresql://<db-host>:5432/<nombre-db>"
+  DB_URL: "jdbc:postgresql://<db-host>:5432/dbPedidos"

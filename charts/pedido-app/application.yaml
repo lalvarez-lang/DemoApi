@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/lalvarez-lang/PedidosApi'
     targetRevision: HEAD
-    path: charts/pedido-app
+    path: charts/pedido-app 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: DemoApi

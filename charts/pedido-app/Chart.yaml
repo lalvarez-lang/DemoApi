@@ -5,4 +5,4 @@ version: 0.1.0
 dependencies:
   - name: postgresql
     version: <versión>
-    repository: https://charts.bitnami.com/bitnami
+    repository: https://charts.bitnami.com/bitnami 
