@@ -1,0 +1,8 @@
+apiVersion: v2
+name: pedido-app
+description: A Helm chart for managing orders
+version: 0.1.0
+dependencies:
+  - name: postgresql
+    version: <versión>
+    repository: https://charts.bitnami.com/bitnami
