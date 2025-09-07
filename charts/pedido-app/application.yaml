@@ -14,5 +14,5 @@ spec:
     namespace: DemoApi
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true 
+      selfHeal: true 
