@@ -19,9 +19,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: pedidosdb
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin123
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
@@ -54,12 +54,10 @@ jobs:
       - name: Run database update
         run: dotnet ef database update 
         env:          
-          DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
+          DOTNET_CONNECTION_STRING: "Host=${{ secrets.DB_HOST }};Port=${{ secrets.DB_PORT }};Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }}"
           ASPNETCORE_ENVIRONMENT: Development
 
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
       # - name: Ejecutar pruebas
       #   run: dotnet test --configuration Release --no-build --verbosity normal
-
-
