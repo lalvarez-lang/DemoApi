@@ -28,6 +28,9 @@ jobs:
         run: dotnet restore
       - name: Run database update
         run: dotnet ef database update 
+        env:          
+          DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
+          ASPNETCORE_ENVIRONMENT: Development
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
 
