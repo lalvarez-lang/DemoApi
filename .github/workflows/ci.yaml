@@ -23,11 +23,11 @@ jobs:
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
 
-      - name: Aplicar migraciones de la base de datos
-        run: dotnet ef database update
-        env:          
-          DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
-          ASPNETCORE_ENVIRONMENT: Development
+      # - name: Aplicar migraciones de la base de datos
+      #   run: dotnet ef database update
+      #   env:          
+      #     DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
+      #     ASPNETCORE_ENVIRONMENT: Development
 
       # - name: Ejecutar pruebas
       #   run: dotnet test --configuration Release --no-build --verbosity normal
