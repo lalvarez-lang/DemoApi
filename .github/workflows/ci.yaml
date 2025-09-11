@@ -1,4 +1,5 @@
 name: CI
+
 on:
   pull_request:
     branches:
@@ -6,29 +7,58 @@ on:
       - master
       - release
       - main
+
 permissions:
   pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: pedidosdb
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
+
       - name: Configurar .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+
+      - name: Install EF Core Tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Add .NET Tools to PATH
+        run: echo "${{ github.env.HOME }}/.dotnet/tools" >> $GITHUB_PATH      
+
+      - name: Check EF Core Tools Installation
+        run: dotnet ef --version
+
       - name: Restaurar dependencias
         run: dotnet restore
+
+      - name: Run database update
+        run: dotnet ef database update 
+        env:          
+          DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
+          ASPNETCORE_ENVIRONMENT: Development
+
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
-
-      # - name: Aplicar migraciones de la base de datos
-      #   run: dotnet ef database update
-      #   env:          
-      #     DOTNET_CONNECTION_STRING: "Host=localhost;Port=5432;Database=pedidosdb;Username=admin;Password=admin123"
-      #     ASPNETCORE_ENVIRONMENT: Development
-
       # - name: Ejecutar pruebas
       #   run: dotnet test --configuration Release --no-build --verbosity normal
 
