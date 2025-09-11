@@ -18,8 +18,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Install EF Core Tools
+        run: dotnet tool install --global dotnet-ef
+      - name: Add .NET Tools to PATH
+        run: echo "${{ github.env.HOME }}/.dotnet/tools" >> $GITHUB_PATH      
+      - name: Check EF Core Tools Installation
+        run: dotnet ef --version
       - name: Restaurar dependencias
         run: dotnet restore
+      - name: Run database update
+        run: dotnet ef database update 
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
 
