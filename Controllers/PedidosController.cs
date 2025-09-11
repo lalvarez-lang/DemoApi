@@ -23,11 +23,13 @@ public class PedidosController : ControllerBase
 
     // POST: api/pedidos
     [HttpPost]
-    public async Task<ActionResult<Pedido>> PostPedido(Pedido pedido)
+    public async Task<ActionResult<Pedido>> PostPedido(PedidoDto pedidodto)
     {
+        Pedido pedido = new Pedido();
+        pedido.Fecha = pedidodto.Fecha;
         _context.Pedidos.Add(pedido);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetPedido", new { id = pedido.Id }, pedido);
+        return CreatedAtAction("GetPedidos", new { id = pedido.Id }, pedido);
     }
 }
