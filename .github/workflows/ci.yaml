@@ -33,7 +33,6 @@ jobs:
           ASPNETCORE_ENVIRONMENT: Development
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
-
       # - name: Aplicar migraciones de la base de datos
       #   run: dotnet ef database update
       #   env:          
