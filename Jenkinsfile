@@ -80,7 +80,7 @@ pipeline {
 
         stage('Login to ACR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'acr-creds',
+                withCredentials([usernamePassword(credentialsId: 'acr-creds-demo',
                                                  usernameVariable: 'AZ_USER',
                                                  passwordVariable: 'AZ_PASS')]) {
                     sh """
@@ -124,7 +124,7 @@ pipeline {
 
         stage('Run EF Migrations in Cluster') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig-demo', variable: 'KUBECONFIG')]) {
+                withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
                     sh '''
                     # Ejecutar migraciones desde un pod temporal en el cluster
                     kubectl run ef-migrate --rm -i -n $NAMESPACE \
