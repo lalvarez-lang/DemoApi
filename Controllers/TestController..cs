@@ -16,6 +16,6 @@ public class TestController : ControllerBase
     [HttpGet]
     public void GetMessage()
     {
-        Console.WriteLine("this is a new mesagge");
+        Console.WriteLine("this is a new mesagge, edited");
     }    
 }
