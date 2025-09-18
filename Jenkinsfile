@@ -136,29 +136,30 @@ pipeline {
             }
         }
 
-        
-
         stage('Update GitOps repo') {
             steps {
-                sh """
-                  if [ ! -d k8sRepository ]; then
-                    git clone https://github.com/3sneider/k8sRepository.git 
-                  else
-                    echo "Repositorio ya existe, actualizando..."
-                  fi
-                  
-                  cd k8sRepository/K8s                                     
-
-                  ls -la
-
-                  sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
- 
-                  git config user.email "dubier1992@gmail.com"
-                  git config user.name "3sneider"
-                  git add deployment.yaml
-                  git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
-                  git push origin main
-                """
+                withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    sh """
+                        if [ ! -d k8sRepository ]; then
+                            git clone https://github.com/3sneider/k8sRepository.git
+                        else
+                            echo "Repositorio ya existe, actualizando..."
+                        fi
+                        
+                        cd k8sRepository/K8s                                      
+        
+                        ls -la
+        
+                        sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
+                        git config user.email "dubier1992@gmail.com"
+                        git config user.name "3sneider"
+                        git add deployment.yaml
+                        git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+                        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/3sneider/k8sRepository.git
+                        git push origin main
+                    """
+                }
+               
             }
         }
     }
