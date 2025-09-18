@@ -12,71 +12,71 @@ pipeline {
     }
 
     stages {      
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }      
+        // stage('Checkout') {
+        //     steps {
+        //         checkout scm
+        //     }
+        // }      
 
-        stage('Install .NET') {
-            steps {
-                sh '''
-                    curl -sSL -o install-dotnet.sh https://dot.net/v1/dotnet-install.sh
-                    chmod +x install-dotnet.sh
-                    ./install-dotnet.sh --channel 9.0 --install-dir $DOTNET_ROOT
-                '''
-            }
-        }
+        // stage('Install .NET') {
+        //     steps {
+        //         sh '''
+        //             curl -sSL -o install-dotnet.sh https://dot.net/v1/dotnet-install.sh
+        //             chmod +x install-dotnet.sh
+        //             ./install-dotnet.sh --channel 9.0 --install-dir $DOTNET_ROOT
+        //         '''
+        //     }
+        // }
 
-        stage('Check .NET') {
-            steps {
-                sh 'dotnet --info'
-            }
-        }
+        // stage('Check .NET') {
+        //     steps {
+        //         sh 'dotnet --info'
+        //     }
+        // }
 
-        stage('Crear Tool Manifest') {
-            steps {
-                sh 'dotnet new tool-manifest --force'
-                echo '✅ Tool manifest creado exitosamente.'
-            }
-        }
+        // stage('Crear Tool Manifest') {
+        //     steps {
+        //         sh 'dotnet new tool-manifest --force'
+        //         echo '✅ Tool manifest creado exitosamente.'
+        //     }
+        // }
 
-        stage('Instalar EF Core Tools') {
-            steps {
-                sh 'dotnet tool install dotnet-ef'
-                echo '✅ EF Core Tools instalados exitosamente.'
-            }
-        }
+        // stage('Instalar EF Core Tools') {
+        //     steps {
+        //         sh 'dotnet tool install dotnet-ef'
+        //         echo '✅ EF Core Tools instalados exitosamente.'
+        //     }
+        // }
 
-        stage('Restaurar Dependencias') {
-            steps {
-                sh 'dotnet restore'
-                sh 'dotnet tool restore'
-                echo '✅ Dependencias restauradas exitosamente.'
-            }
-        }
+        // stage('Restaurar Dependencias') {
+        //     steps {
+        //         sh 'dotnet restore'
+        //         sh 'dotnet tool restore'
+        //         echo '✅ Dependencias restauradas exitosamente.'
+        //     }
+        // }
 
-        stage('Compilar') {
-            steps {
-                sh 'dotnet build --configuration Release --no-restore'
-                echo '✅ Compilación exitosa.'
-            }
-        }
+        // stage('Compilar') {
+        //     steps {
+        //         sh 'dotnet build --configuration Release --no-restore'
+        //         echo '✅ Compilación exitosa.'
+        //     }
+        // }
 
-        stage('Ejecutar Pruebas') {
-            steps {
-                sh 'dotnet test --configuration Release --no-build --verbosity normal'
-                echo '✅ Pruebas ejecutadas exitosamente.'
-            }
-        }
+        // stage('Ejecutar Pruebas') {
+        //     steps {
+        //         sh 'dotnet test --configuration Release --no-build --verbosity normal'
+        //         echo '✅ Pruebas ejecutadas exitosamente.'
+        //     }
+        // }
 
-        stage('Publicar Artefactos') {
-            steps {
-                sh 'dotnet publish DemoApi.csproj -c Release -o out'
-                archiveArtifacts artifacts: 'out/**/*', fingerprint: true
-                echo '✅ Artefactos publicados exitosamente.'
-            }
-        }        
+        // stage('Publicar Artefactos') {
+        //     steps {
+        //         sh 'dotnet publish DemoApi.csproj -c Release -o out'
+        //         archiveArtifacts artifacts: 'out/**/*', fingerprint: true
+        //         echo '✅ Artefactos publicados exitosamente.'
+        //     }
+        // }        
 
         stage('Login to ACR') {
             steps {
@@ -142,6 +142,7 @@ pipeline {
             steps {
                 sh """
                   git clone https://github.com/3sneider/k8sRepository.git
+                  ls -la
                   cd k8sRepository/K8s                                     
 
                   sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
