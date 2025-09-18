@@ -150,7 +150,7 @@ pipeline {
                   git config user.email "jenkins@ci"
                   git config user.name "jenkins"
                   git add deployment.yaml
-                  git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+                  git commit -m "Update demo-api image tag to ${IMAGE_TAG}" 
                   git push origin main
                 """
             }
