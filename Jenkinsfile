@@ -141,7 +141,7 @@ pipeline {
         stage('Update GitOps repo') {
             steps {
                 sh """
-                  git clone https://github.com/3sneider/k8sRepository.git
+                  
                   ls -la
                   cd k8sRepository/K8s                                     
 
