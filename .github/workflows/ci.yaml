@@ -1,66 +1,66 @@
-# name: CI
+name: CI
 
-# on:
-#   pull_request:
-#     branches:
-#       - develop
-#       - master
-#       - release
-#       - main
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+      - release
+      - main
 
-# permissions:
-#   pull-requests: write
+permissions:
+  pull-requests: write
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-#     services:
-#       postgres:
-#         image: postgres:latest
-#         env:
-#           POSTGRES_DB: ${{ secrets.DB_NAME }}
-#           POSTGRES_USER: ${{ secrets.DB_USER }}
-#           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#         ports:
-#           - 5432:5432
-#         options: >-
-#           --health-cmd "pg_isready -U admin"
-#           --health-interval 10s
-#           --health-timeout 5s
-#           --health-retries 5
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-#     steps:
-#       - name: Descargar código
-#         uses: actions/checkout@v4
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
 
-#       - name: Configurar .NET 9
-#         uses: actions/setup-dotnet@v4
-#         with:
-#           dotnet-version: '9.0.x'
+      - name: Configurar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-#       - name: Install EF Core Tools
-#         run: dotnet tool install --global dotnet-ef
+      - name: Install EF Core Tools
+        run: dotnet tool install --global dotnet-ef
 
-#       - name: Add .NET Tools to PATH
-#         run: echo "${{ github.env.HOME }}/.dotnet/tools" >> $GITHUB_PATH      
+      - name: Add .NET Tools to PATH
+        run: echo "${{ github.env.HOME }}/.dotnet/tools" >> $GITHUB_PATH      
 
-#       - name: Check EF Core Tools Installation
-#         run: dotnet ef --version
+      - name: Check EF Core Tools Installation
+        run: dotnet ef --version
 
-#       - name: Restaurar dependencias
-#         run: dotnet restore
+      - name: Restaurar dependencias
+        run: dotnet restore
 
-#       - name: Run database update
-#         run: dotnet ef database update 
-#         env:          
-#           DOTNET_CONNECTION_STRING: "Host=${{ secrets.DB_HOST }};Port=${{ secrets.DB_PORT }};Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }}"
-#           ASPNETCORE_ENVIRONMENT: Development
+      - name: Run database update
+        run: dotnet ef database update 
+        env:          
+          DOTNET_CONNECTION_STRING: "Host=${{ secrets.DB_HOST }};Port=${{ secrets.DB_PORT }};Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }}"
+          ASPNETCORE_ENVIRONMENT: Development
 
-#       - name: Compilar
-#         run: dotnet build --configuration Release --no-restore
-#       # - name: Ejecutar pruebas
-#       #   run: dotnet test --configuration Release --no-build --verbosity normal
-#       #- name: Publicar
-#       # run: dotnet publish --configuration Release --no-build --output ./publish
+      - name: Compilar
+        run: dotnet build --configuration Release --no-restore
+      # - name: Ejecutar pruebas
+      #   run: dotnet test --configuration Release --no-build --verbosity normal
+      #- name: Publicar
+      # run: dotnet publish --configuration Release --no-build --output ./publish
 

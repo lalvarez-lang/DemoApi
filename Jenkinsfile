@@ -7,7 +7,7 @@ pipeline {
         DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "1"
         REGISTRY = "aksdemo2025registry.azurecr.io"
         IMAGE_NAME = "demo-api"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = GIT_COMMIT.take(7)
         NAMESPACE = "demo-api"
     }
 
@@ -133,6 +133,25 @@ pipeline {
                       /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
                     '''
                 }
+            }
+        }
+
+        
+
+        stage('Update GitOps repo') {
+            steps {
+                sh """
+                  git clone https://github.com/3sneider/k8sRepository.git
+                  cd K8s
+                   
+                  sed -i "s|\(image: aksdemo2025registry.azurecr.io/demo-api:\).*|\1${IMAGE_TAG}|" deployment.yaml
+ 
+                  git config user.email "jenkins@ci"
+                  git config user.name "jenkins"
+                  git add deployment.yaml
+                  git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+                  git push origin main
+                """
             }
         }
     }
