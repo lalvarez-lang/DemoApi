@@ -140,10 +140,16 @@ pipeline {
 
         stage('Update GitOps repo') {
             steps {
-                sh """                                    
-                  cd k8sRepository
+                sh """
+                  if [ ! -d k8sRepository ]; then
+                    git clone https://github.com/3sneider/k8sRepository.git 
+                  else
+                    echo "Repositorio ya existe, actualizando..."
+                  fi
+                  
+                  cd k8sRepository/K8s                                     
 
-                  ls -la                                  
+                  ls -la
 
                   sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
  
