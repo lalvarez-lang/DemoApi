@@ -142,8 +142,8 @@ pipeline {
             steps {
                 sh """
                   git clone https://github.com/3sneider/k8sRepository.git
-                  cd K8s
-                   
+                  cd K8s                                     
+
                   sed -i "s|\(image: aksdemo2025registry.azurecr.io/demo-api:\).*|\1${IMAGE_TAG}|" deployment.yaml
  
                   git config user.email "jenkins@ci"
