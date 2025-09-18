@@ -78,63 +78,63 @@ pipeline {
         //     }
         // }        
 
-        stage('Login to ACR') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'acr-creds-demo',
-                                                 usernameVariable: 'AZ_USER',
-                                                 passwordVariable: 'AZ_PASS')]) {
-                    sh """
-                        echo \$AZ_PASS | docker login $REGISTRY -u \$AZ_USER --password-stdin
-                    """
-                }
-            }
-        }
+        // stage('Login to ACR') {
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'acr-creds-demo',
+        //                                          usernameVariable: 'AZ_USER',
+        //                                          passwordVariable: 'AZ_PASS')]) {
+        //             sh """
+        //                 echo \$AZ_PASS | docker login $REGISTRY -u \$AZ_USER --password-stdin
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Build Docker Image') {
-            steps {
-                sh """
-                    docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG --target final .
-                """
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         sh """
+        //             docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG --target final .
+        //         """
+        //     }
+        // }
 
-        stage('Build Migration Docker Image') {
-            steps {
-                sh """
-                    docker build -f Dockerfile -t $REGISTRY/$IMAGE_NAME:migration --target migration .
-                """
-            }
-        }
+        // stage('Build Migration Docker Image') {
+        //     steps {
+        //         sh """
+        //             docker build -f Dockerfile -t $REGISTRY/$IMAGE_NAME:migration --target migration .
+        //         """
+        //     }
+        // }
 
-        stage('Push Docker Image') {
-            steps {
-                sh """
-                    docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-                """
-            }
-        }
+        // stage('Push Docker Image') {
+        //     steps {
+        //         sh """
+        //             docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+        //         """
+        //     }
+        // }
 
-        stage('Push Migration Docker Image') {
-            steps {
-                sh """
-                    docker push $REGISTRY/$IMAGE_NAME:migration
-                """
-            }
-        }
+        // stage('Push Migration Docker Image') {
+        //     steps {
+        //         sh """
+        //             docker push $REGISTRY/$IMAGE_NAME:migration
+        //         """
+        //     }
+        // }
 
-        stage('Run EF Migrations in Cluster') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
-                    sh '''
-                    # Ejecutar migraciones desde un pod temporal en el cluster
-                    kubectl run ef-migrate --rm -i -n $NAMESPACE \
-                      --image=$REGISTRY/$IMAGE_NAME:migration --restart=Never \
-                      --env="ConnectionStrings__DefaultConnection=Host=51.57.57.170;Port=5432;Database=pedidosdb;Username=demoapi;Password=Qwerty123;Ssl Mode=Require;Trust Server Certificate=true;" --command -- \
-                      /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
-                    '''
-                }
-            }
-        }
+        // stage('Run EF Migrations in Cluster') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
+        //             sh '''
+        //             # Ejecutar migraciones desde un pod temporal en el cluster
+        //             kubectl run ef-migrate --rm -i -n $NAMESPACE \
+        //               --image=$REGISTRY/$IMAGE_NAME:migration --restart=Never \
+        //               --env="ConnectionStrings__DefaultConnection=Host=51.57.57.170;Port=5432;Database=pedidosdb;Username=demoapi;Password=Qwerty123;Ssl Mode=Require;Trust Server Certificate=true;" --command -- \
+        //               /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
+        //             '''
+        //         }
+        //     }
+        // }
 
         
 
