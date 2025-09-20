@@ -72,13 +72,13 @@ pipeline {
             }
         }
       
-        stage('Publicar Artefactos') {
-            steps {
-                sh 'dotnet publish DemoApi.csproj -c Release -o out'
-                archiveArtifacts artifacts: 'out/**/*', fingerprint: true
-                echo '✅ Artefactos publicados exitosamente.'
-            }
-        }        
+        // stage('Publicar Artefactos') {
+        //     steps {
+        //         sh 'dotnet publish DemoApi.csproj -c Release -o out'
+        //         archiveArtifacts artifacts: 'out/**/*', fingerprint: true
+        //         echo '✅ Artefactos publicados exitosamente.'
+        //     }
+        // }        
 
         stage('Login to ACR') {
             steps {
@@ -162,11 +162,10 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-
-                            sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
-                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" ${CHART_DIR}/values.yaml
-
                             cd ${PRINCIPAL_DIR}
+                            sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${CHART_DIR}/Chart.yaml
+                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" ${CHART_DIR}/values.yaml
+                            
                             helm lint ${CHART_DIR}
                             helm dependency update ${CHART_DIR}
                             helm package ${CHART_DIR} -d ${DOCS_DIR}
