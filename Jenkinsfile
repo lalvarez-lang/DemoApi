@@ -174,7 +174,7 @@ pipeline {
         
                         ls -la
         
-                        sed -i "s|tag:.*|tag: ${IMAGE_TAG}|" values.yaml
+                        sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml
                         git config user.email "action@github.com"
                         git config user.name "Github Action"
                         git add values.yaml
