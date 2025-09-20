@@ -80,7 +80,7 @@ pipeline {
 
         stage('Login to ACR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'acr-creds-demo',
+                withCredentials([usernamePassword(credentialsId: 'acr-creds',
                                                  usernameVariable: 'AZ_USER',
                                                  passwordVariable: 'AZ_PASS')]) {
                     sh """
