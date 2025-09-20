@@ -1,7 +1,16 @@
 # Trabajo Final - Diplomado de Arquitectura de Software
 
+## Integrantes
+Dubier Esneider Espitia Aristizabal
+Susana Bonilla Mendez
+Alix Jessenia Dias Acosta
+Luis Fernando Alvarez
+Daniel Parra
+
 ## Descripción
 Este repositorio contiene el código para un sistema de gestión de pedidos, implementado con Helm y gestionado por ArgoCD.
+
+El repositorio del chart está disponible en: https://github.com/SusanaBM/demo-api-helm
 
 ## Instalación del Chart con Helm
 
