@@ -152,15 +152,21 @@ pipeline {
                     echo "Chart version: ${VERSION}"
 
                     // Incrementar el patch (último número)
-                    NEW_VERSION = sh(
-                        script: '''
-                            ver="${VERSION}"
-                            IFS='.' read -r major minor patch <<< "$ver"
-                            patch=$((patch + 1))
-                            echo "${major}.${minor}.${patch}"
-                        ''',
-                        returnStdout: true
-                    ).trim()
+                    // NEW_VERSION = sh(
+                    //     script: '''
+                    //         ver="${VERSION}"
+                    //         IFS='.' read -r major minor patch <<< "$ver"
+                    //         patch=$((patch + 1))
+                    //         echo "${major}.${minor}.${patch}"
+                    //     ''',
+                    //     returnStdout: true
+                    // ).trim()
+                    // Dividir la versión en partes
+                    def (major, minor, patch) = VERSION.tokenize('.').collect { it.toInteger() }
+                    // Incrementar el patch
+                    patch += 1
+                    // Crear la nueva versión
+                    NEW_VERSION = "${major}.${minor}.${patch}"
                     echo "Nueva versión: ${NEW_VERSION}"
                     
                     sh """
@@ -173,6 +179,32 @@ pipeline {
                 }
             }
         }
+
+
+
+// stage('Incrementar versión') {
+//             steps {
+//                 script {
+//                     // Leer la versión actual del archivo YAML
+//                     def version = sh(script: "grep 'version:' config.yaml | awk '{print \$2}'", returnStdout: true).trim()
+//                     // Dividir la versión en partes
+//                     def (major, minor, patch) = version.tokenize('.').collect { it.toInteger() }
+//                     // Incrementar el patch
+//                     patch += 1
+//                     // Crear la nueva versión
+//                     def newVersion = "${major}.${minor}.${patch}"
+//                     // Actualizar el archivo YAML
+//                     sh """
+//                     sed -i 's/version: ${version}/version: ${newVersion}/' config.yaml
+//                     sed -i 's/my_image:${version}/my_image:${newVersion}/' config.yaml
+//                     """
+//                     // Imprimir la nueva versión
+//                     echo "Versión actualizada a: ${newVersion}"
+//                 }
+//             }
+//         }
+//     }
+
 
         stage('Update GitOps repo') {
             steps {
