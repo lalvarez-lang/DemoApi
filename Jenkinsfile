@@ -15,6 +15,7 @@ pipeline {
         CHART_NAME = 'demo-chart'
         CHART_PKG_URL = 'https://susanabm.github.io/demo-api-helm/'
         GITOPS_REPO = 'github.com/SusanaBM/demo-api-helm.git'
+        GITOPS_DIR = 'argocd-apps'
         VERSION    = '' // se calculará dinámicamente
         NEW_VERSION    = '' // se calculará dinámicamente
     }
@@ -183,7 +184,7 @@ pipeline {
 
                             git config user.email "action@github.com"
                             git config user.name "Github Action"
-                            git add values.yaml Chart.yaml
+                            git add values.yaml Chart.yaml ${DOCS_DIR} ${GITOPS_DIR}/demo-api.yaml
                             git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
                             git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
                             git push origin main
