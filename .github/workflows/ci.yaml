@@ -59,8 +59,4 @@ jobs:
 
       - name: Compilar
         run: dotnet build --configuration Release --no-restore
-      # - name: Ejecutar pruebas
-      #   run: dotnet test --configuration Release --no-build --verbosity normal
-      #- name: Publicar
-      # run: dotnet publish --configuration Release --no-build --output ./publish
-
+  
