@@ -161,7 +161,7 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-                            sed -i '' 's/^version: .*/version: ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
+                            sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
 
                             cd ${PRINCIPAL_DIR}
                             helm lint ${CHART_DIR}
