@@ -81,3 +81,7 @@ Controller - Pedidos
             }
         ]
     ```
+## Proceso
+
+![Proceso](Resources/process.png)
+
