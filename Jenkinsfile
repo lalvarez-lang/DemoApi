@@ -16,6 +16,7 @@ pipeline {
         CHART_PKG_URL = 'https://susanabm.github.io/demo-api-helm/'
         GITOPS_REPO = 'github.com/SusanaBM/demo-api-helm.git'
         VERSION    = '' // se calculará dinámicamente
+        NEW_VERSION    = '' // se calculará dinámicamente
     }
 
     stages {      
@@ -149,6 +150,19 @@ pipeline {
                     ).trim()
                     
                     echo "Chart version: ${VERSION}"
+
+                    // Incrementar el patch (último número)
+                    NEW_VERSION = sh(
+                        script: '''
+                            ver="${VERSION}"
+                            IFS='.' read -r major minor patch <<< "$ver"
+                            patch=$((patch + 1))
+                            echo "${major}.${minor}.${patch}"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    echo "Nueva versión: ${NEW_VERSION}"
+                    
                     sh """
                       cd ${PRINCIPAL_DIR}
                       helm lint ${CHART_DIR}
@@ -175,9 +189,11 @@ pipeline {
                         ls -la
         
                         sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml
+                        sed -i '' 's/^version: .*/version: ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
+
                         git config user.email "action@github.com"
                         git config user.name "Github Action"
-                        git add values.yaml
+                        git add values.yaml Chart.yaml
                         git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
                         git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
                         git push origin main
