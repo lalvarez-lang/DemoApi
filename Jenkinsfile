@@ -162,21 +162,22 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
+                            
+                            if [ ! -d demo-api-helm ]; then
+                                git clone https://github.com/SusanaBM/demo-api-helm.git
+                            else
+                                echo "Repositorio ya existe, actualizando..."
+                            fi
+
                             sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
 
                             cd ${PRINCIPAL_DIR}
                             helm lint ${CHART_DIR}
                             helm dependency update ${CHART_DIR}
                             helm package ${CHART_DIR} -d ${DOCS_DIR}
-                            helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true
-
-                            if [ ! -d demo-api-helm ]; then
-                                git clone https://github.com/SusanaBM/demo-api-helm.git
-                            else
-                                echo "Repositorio ya existe, actualizando..."
-                            fi
+                            helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true                            
                                 
-                            cd demo-api-helm/demo-chart                                      
+                            cd demo-chart                                      
             
                             ls -la
             
@@ -184,6 +185,9 @@ pipeline {
 
                             git config user.email "action@github.com"
                             git config user.name "Github Action"
+
+                            git status
+
                             git add .
                             git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
                             git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
