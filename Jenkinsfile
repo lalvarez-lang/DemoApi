@@ -9,6 +9,13 @@ pipeline {
         IMAGE_NAME = "demo-api"
         IMAGE_TAG = GIT_COMMIT.take(7)
         NAMESPACE = "demo-api"
+        PRINCIPAL_DIR = "demo-api-helm"
+        CHART_DIR  = 'demo-chart'
+        DOCS_DIR   = 'docs'
+        CHART_NAME = 'demo-chart'
+        CHART_PKG_URL = 'https://susanabm.github.io/demo-api-helm/'
+        GITOPS_REPO = 'github.com/SusanaBM/demo-api-helm.git'
+        VERSION    = '' // se calculará dinámicamente
     }
 
     stages {      
@@ -62,14 +69,7 @@ pipeline {
                 echo '✅ Compilación exitosa.'
             }
         }
-
-        // stage('Ejecutar Pruebas') {
-        //     steps {
-        //         sh 'dotnet test --configuration Release --no-build --verbosity normal'
-        //         echo '✅ Pruebas ejecutadas exitosamente.'
-        //     }
-        // }
-
+      
         stage('Publicar Artefactos') {
             steps {
                 sh 'dotnet publish DemoApi.csproj -c Release -o out'
@@ -122,46 +122,43 @@ pipeline {
             }
         }
 
-        // stage('Run EF Migrations in Cluster') {
-        //     steps {
-        //         withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
-        //             sh '''
-        //             # Ejecutar migraciones desde un pod temporal en el cluster
-        //             kubectl run ef-migrate --rm -i -n $NAMESPACE \
-        //               --image=$REGISTRY/$IMAGE_NAME:migration --restart=Never \
-        //               --env="ConnectionStrings__DefaultConnection=Host=51.57.57.170;Port=5432;Database=pedidosdb;Username=demoapi;Password=Qwerty123;Ssl Mode=Require;Trust Server Certificate=true;" --command -- \
-        //               /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
-        //             '''
-        //         }
-        //     }
-        // }
-
-        // stage('Update GitOps repo') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-        //             sh """
-        //                 if [ ! -d k8sRepository ]; then
-        //                     git clone https://github.com/3sneider/k8sRepository.git
-        //                 else
-        //                     echo "Repositorio ya existe, actualizando..."
-        //                 fi
-                        
-        //                 cd k8sRepository/K8s                                      
-        
-        //                 ls -la
-        
-        //                 sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
-        //                 git config user.email "dubier1992@gmail.com"
-        //                 git config user.name "3sneider"
-        //                 git add deployment.yaml
-        //                 git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
-        //                 git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/3sneider/k8sRepository.git
-        //                 git push origin main
-        //             """
-        //         }
+        stage('Clone Chart-GitOps repo') {
+            steps {
+                dir("demo-api-helm") {
+                    deleteDir()
+                }
+                withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    
+                    sh """
+                        git clone https://${GITOPS_REPO}
+ 
+                        ls -la                        
+                    """
+                }
                
-        //     }
-        // }
+            }
+        }
+ 
+        stage('Package Helm Chart') {
+            steps {
+                script {
+                    // Obtener versión desde Chart.yaml
+                    VERSION = sh(
+                        script: "grep '^version:' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml | awk '{print \$2}'",
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Chart version: ${VERSION}"
+                    sh """
+                      cd ${PRINCIPAL_DIR}
+                      helm lint ${CHART_DIR}
+                      helm dependency update ${CHART_DIR}
+                      helm package ${CHART_DIR} -d ${DOCS_DIR}
+                      helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true
+                    """
+                }
+            }
+        }
 
         stage('Update GitOps repo') {
             steps {
@@ -177,9 +174,9 @@ pipeline {
         
                         ls -la
         
-                        sed -i "s|tag:.*|tag:${IMAGE_TAG}|" values.yaml
-                        git config user.email "dubier1992@gmail.com"
-                        git config user.name "3sneider"
+                        sed -i "s|tag:.*|tag: ${IMAGE_TAG}|" values.yaml
+                        git config user.email "action@github.com"
+                        git config user.name "Github Action"
                         git add values.yaml
                         git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
                         git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git

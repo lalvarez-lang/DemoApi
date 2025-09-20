@@ -5,9 +5,9 @@ using DemoApi.Models;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TestController : ControllerBase
+public class TesstController : ControllerBase
 {
-    public TestController(ApplicationDbContext context)
+    public TesstController(ApplicationDbContext context)
     {
  
     }
