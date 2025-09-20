@@ -167,6 +167,7 @@ pipeline {
                                 git clone https://github.com/SusanaBM/demo-api-helm.git
                             else
                                 echo "Repositorio ya existe, actualizando..."
+                                git pull
                             fi
 
                             sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
