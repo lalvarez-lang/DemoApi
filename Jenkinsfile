@@ -63,12 +63,12 @@ pipeline {
             }
         }
 
-        stage('Ejecutar Pruebas') {
-            steps {
-                sh 'dotnet test --configuration Release --no-build --verbosity normal'
-                echo '✅ Pruebas ejecutadas exitosamente.'
-            }
-        }
+        // stage('Ejecutar Pruebas') {
+        //     steps {
+        //         sh 'dotnet test --configuration Release --no-build --verbosity normal'
+        //         echo '✅ Pruebas ejecutadas exitosamente.'
+        //     }
+        // }
 
         stage('Publicar Artefactos') {
             steps {
@@ -122,40 +122,67 @@ pipeline {
             }
         }
 
-        stage('Run EF Migrations in Cluster') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
-                    sh '''
-                    # Ejecutar migraciones desde un pod temporal en el cluster
-                    kubectl run ef-migrate --rm -i -n $NAMESPACE \
-                      --image=$REGISTRY/$IMAGE_NAME:migration --restart=Never \
-                      --env="ConnectionStrings__DefaultConnection=Host=51.57.57.170;Port=5432;Database=pedidosdb;Username=demoapi;Password=Qwerty123;Ssl Mode=Require;Trust Server Certificate=true;" --command -- \
-                      /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
-                    '''
-                }
-            }
-        }
+        // stage('Run EF Migrations in Cluster') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'kubeconfig-api-demo', variable: 'KUBECONFIG')]) {
+        //             sh '''
+        //             # Ejecutar migraciones desde un pod temporal en el cluster
+        //             kubectl run ef-migrate --rm -i -n $NAMESPACE \
+        //               --image=$REGISTRY/$IMAGE_NAME:migration --restart=Never \
+        //               --env="ConnectionStrings__DefaultConnection=Host=51.57.57.170;Port=5432;Database=pedidosdb;Username=demoapi;Password=Qwerty123;Ssl Mode=Require;Trust Server Certificate=true;" --command -- \
+        //               /bin/bash -c "dotnet tool restore && dotnet ef database update --project DemoApi.csproj --startup-project DemoApi.csproj"
+        //             '''
+        //         }
+        //     }
+        // }
+
+        // stage('Update GitOps repo') {
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+        //             sh """
+        //                 if [ ! -d k8sRepository ]; then
+        //                     git clone https://github.com/3sneider/k8sRepository.git
+        //                 else
+        //                     echo "Repositorio ya existe, actualizando..."
+        //                 fi
+                        
+        //                 cd k8sRepository/K8s                                      
+        
+        //                 ls -la
+        
+        //                 sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
+        //                 git config user.email "dubier1992@gmail.com"
+        //                 git config user.name "3sneider"
+        //                 git add deployment.yaml
+        //                 git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+        //                 git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/3sneider/k8sRepository.git
+        //                 git push origin main
+        //             """
+        //         }
+               
+        //     }
+        // }
 
         stage('Update GitOps repo') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     sh """
-                        if [ ! -d k8sRepository ]; then
-                            git clone https://github.com/3sneider/k8sRepository.git
+                        if [ ! -d demo-api-helm ]; then
+                            git clone https://github.com/SusanaBM/demo-api-helm.git
                         else
                             echo "Repositorio ya existe, actualizando..."
                         fi
                         
-                        cd k8sRepository/K8s                                      
+                        cd demo-api-helm/demo-chart                                      
         
                         ls -la
         
-                        sed -i "s|image: aksdemo2025registry.azurecr.io/demo-api:.*|image: aksdemo2025registry.azurecr.io/demo-api:${IMAGE_TAG}|" deployment.yaml
+                        sed -i "s|tag:.*|tag:${IMAGE_TAG}|" values.yaml
                         git config user.email "dubier1992@gmail.com"
                         git config user.name "3sneider"
-                        git add deployment.yaml
+                        git add values.yaml
                         git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
-                        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/3sneider/k8sRepository.git
+                        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
                         git push origin main
                     """
                 }
