@@ -5,7 +5,7 @@ pipeline {
         DOTNET_ROOT = "${HOME}/.dotnet"
         PATH = "${HOME}/.dotnet:${HOME}/.dotnet/tools:${env.PATH}"
         DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "1"
-        REGISTRY = "aksdemo2025registry.azurecr.io"
+        REGISTRY = "demoapiregistry.azurecr.io"
         IMAGE_NAME = "demo-api"
         IMAGE_TAG = GIT_COMMIT.take(7)
         NAMESPACE = "demo-api"
