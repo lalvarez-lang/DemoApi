@@ -91,13 +91,13 @@ pipeline {
         //     }
         // }
 
-        // stage('Build Docker Image') {
-        //     steps {
-        //         sh """
-        //             docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG --target final .
-        //         """
-        //     }
-        // }
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                    docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG --target final .
+                """
+            }
+        }
 
         // stage('Build Migration Docker Image') {
         //     steps {
@@ -107,13 +107,13 @@ pipeline {
         //     }
         // }
 
-        // stage('Push Docker Image') {
-        //     steps {
-        //         sh """
-        //             docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-        //         """
-        //     }
-        // }
+        stage('Push Docker Image') {
+            steps {
+                sh """
+                    docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+                """
+            }
+        }
 
         // stage('Push Migration Docker Image') {
         //     steps {
