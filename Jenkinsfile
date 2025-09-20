@@ -124,22 +124,22 @@ pipeline {
         //     }
         // }
 
-        // stage('Clone Chart-GitOps repo') {
-        //     steps {
-        //         dir("demo-api-helm") {
-        //             deleteDir()
-        //         }
-        //         withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+        stage('Clone Chart-GitOps repo') {
+            steps {
+                dir("demo-api-helm") {
+                    deleteDir()
+                }
+                withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                     
-        //             sh """
-        //                 git clone https://${GITOPS_REPO}
+                    sh """
+                        git clone https://${GITOPS_REPO}
  
-        //                 ls -la                        
-        //             """
-        //         }
+                        ls -la                        
+                    """
+                }
                
-        //     }
-        // }
+            }
+        }
  
         stage('Package Helm Chart') {
             steps {
@@ -162,13 +162,6 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-                            
-                            if [ ! -d demo-api-helm ]; then
-                                git clone https://github.com/SusanaBM/demo-api-helm.git
-                            else
-                                echo "Repositorio ya existe, actualizando..."
-                                git pull
-                            fi
 
                             sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
 
