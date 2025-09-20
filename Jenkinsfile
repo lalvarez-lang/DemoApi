@@ -170,12 +170,10 @@ pipeline {
                             helm dependency update ${CHART_DIR}
                             helm package ${CHART_DIR} -d ${DOCS_DIR}
                             helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true                            
-                                
-                            cd demo-chart                                      
-            
+                                                  
                             ls -la
             
-                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml                            
+                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" ${CHART_DIR}/values.yaml                            
 
                             git config user.email "action@github.com"
                             git config user.name "Github Action"
