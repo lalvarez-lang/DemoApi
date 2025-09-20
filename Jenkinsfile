@@ -150,32 +150,46 @@ pipeline {
                     ).trim()
                     
                     echo "Chart version: ${VERSION}"
-
-                    // Incrementar el patch (último número)
-                    // NEW_VERSION = sh(
-                    //     script: '''
-                    //         ver="${VERSION}"
-                    //         IFS='.' read -r major minor patch <<< "$ver"
-                    //         patch=$((patch + 1))
-                    //         echo "${major}.${minor}.${patch}"
-                    //     ''',
-                    //     returnStdout: true
-                    // ).trim()
-                    // Dividir la versión en partes
-                    def (major, minor, patch) = VERSION.tokenize('.').collect { it.toInteger() }
-                    // Incrementar el patch
-                    patch += 1
-                    // Crear la nueva versión
-                    NEW_VERSION = "${major}.${minor}.${patch}"
-                    echo "Nueva versión: ${NEW_VERSION}"
                     
-                    sh """
-                      cd ${PRINCIPAL_DIR}
-                      helm lint ${CHART_DIR}
-                      helm dependency update ${CHART_DIR}
-                      helm package ${CHART_DIR} -d ${DOCS_DIR}
-                      helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true
-                    """
+                    def (major, minor, patch) = VERSION.tokenize('.').collect { it.toInteger() } // Dividir la versión en partes
+                    
+                    patch += 1 // Incrementar el patch
+                   
+                    NEW_VERSION = "${major}.${minor}.${patch}" // Crear la nueva versión
+
+                    echo "Nueva versión: ${NEW_VERSION}"                  
+
+                    withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                        sh """
+                            sed -i '' 's/^version: .*/version: ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
+
+                            cd ${PRINCIPAL_DIR}
+                            helm lint ${CHART_DIR}
+                            helm dependency update ${CHART_DIR}
+                            helm package ${CHART_DIR} -d ${DOCS_DIR}
+                            helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true
+
+                            if [ ! -d demo-api-helm ]; then
+                                git clone https://github.com/SusanaBM/demo-api-helm.git
+                            else
+                                echo "Repositorio ya existe, actualizando..."
+                            fi
+                                
+                            cd demo-api-helm/demo-chart                                      
+            
+                            ls -la
+            
+                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml                            
+
+                            git config user.email "action@github.com"
+                            git config user.name "Github Action"
+                            git add values.yaml Chart.yaml
+                            git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+                            git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
+                            git push origin main
+
+                        """
+                    }
                 }
             }
         }
@@ -206,34 +220,34 @@ pipeline {
 //     }
 
 
-        stage('Update GitOps repo') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                    sh """
-                        if [ ! -d demo-api-helm ]; then
-                            git clone https://github.com/SusanaBM/demo-api-helm.git
-                        else
-                            echo "Repositorio ya existe, actualizando..."
-                        fi
+        // stage('Update GitOps repo') {
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'github-creds-su', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+        //             sh """
+        //                 if [ ! -d demo-api-helm ]; then
+        //                     git clone https://github.com/SusanaBM/demo-api-helm.git
+        //                 else
+        //                     echo "Repositorio ya existe, actualizando..."
+        //                 fi
                         
-                        cd demo-api-helm/demo-chart                                      
+        //                 cd demo-api-helm/demo-chart                                      
         
-                        ls -la
+        //                 ls -la
         
-                        sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml
-                        sed -i '' 's/^version: .*/version: ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
+        //                 sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" values.yaml
+                        
 
-                        git config user.email "action@github.com"
-                        git config user.name "Github Action"
-                        git add values.yaml Chart.yaml
-                        git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
-                        git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
-                        git push origin main
-                    """
-                }
+        //                 git config user.email "action@github.com"
+        //                 git config user.name "Github Action"
+        //                 git add values.yaml Chart.yaml
+        //                 git commit -m "Update demo-api image tag to ${IMAGE_TAG}"
+        //                 git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/SusanaBM/demo-api-helm.git
+        //                 git push origin main
+        //             """
+        //         }
                
-            }
-        }
+        //     }
+        // }
     }
 
     post {
