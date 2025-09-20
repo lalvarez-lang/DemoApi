@@ -164,6 +164,7 @@ pipeline {
                         sh """
 
                             sed -i 's/^version: .*/version:  ${NEW_VERSION}/' ${PRINCIPAL_DIR}/${CHART_DIR}/Chart.yaml
+                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" ${CHART_DIR}/values.yaml
 
                             cd ${PRINCIPAL_DIR}
                             helm lint ${CHART_DIR}
@@ -171,9 +172,8 @@ pipeline {
                             helm package ${CHART_DIR} -d ${DOCS_DIR}
                             helm repo index ${DOCS_DIR} --url ${CHART_PKG_URL} --merge ${DOCS_DIR}/index.yaml || true                            
                                                   
-                            ls -la
-            
-                            sed -i "s|tagfinal:.*|tagfinal: ${IMAGE_TAG}|" ${CHART_DIR}/values.yaml                            
+                            ls -la         
+                                                     
 
                             git config user.email "action@github.com"
                             git config user.name "Github Action"
