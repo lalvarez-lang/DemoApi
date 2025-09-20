@@ -3,7 +3,7 @@
 ## Integrantes
 Dubier Esneider Espitia Aristizabal
 Susana Bonilla Mendez
-Alix Jessenia Dias Acosta
+Alix Jessenia Diaz Acosta
 Luis Fernando Alvarez
 Daniel Parra
 
